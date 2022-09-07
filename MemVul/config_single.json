@@ -1,0 +1,78 @@
+local bert_model = "bert-base-uncased";
+local seed = 2021;
+
+{
+  "random_seed": seed,
+  "numpy_seed": seed,
+  "pytorch_seed": seed,
+  "dataset_reader": {
+    "type": "reader_single",
+    "sample_neg": 0.01,
+    "train_iter": 1,
+    "target": "Security_Issue_Full",
+    "tokenizer": {
+      "type": "pretrained_transformer",
+      "model_name": bert_model,
+      "add_special_tokens": true,
+      "max_length": 256
+    },
+    "token_indexers": {
+      "tokens": {
+        "type": "pretrained_transformer",
+        "model_name": bert_model,
+        "namespace": "tags"
+      }
+    }
+  },
+  "train_data_path": "train_project.json",
+  "validation_data_path": "validation_project.json",
+  "model": {
+    "type": "model_single",
+    "label_namespace": "class_labels",
+    "dropout": 0.1,
+    "device": "cuda:0",
+    "PTM": bert_model,
+    "text_field_embedder": {
+      "token_embedders": {
+        "tokens": {
+          "type": "custom_pretrained_transformer",
+          "model_name": bert_model,
+          "train_parameters": true,
+          "pretrained_model_path": "further_pretrain/out_wwm/"
+        }
+      }
+    }
+  },
+  "data_loader": {
+    "batch_size": 64,
+    "shuffle": false
+  },
+  "validation_data_loader":{
+    "batch_size": 512,
+    "shuffle": false
+  },
+  "trainer": {
+    "optimizer": {
+      "type": "huggingface_adamw",
+      "parameter_groups": [[["_text_field_embedder"], {"lr": 2e-5, "requires_grad": true}], [["_bert_pooler"], {"lr": 5e-5, "requires_grad": true}]],
+      "lr": 1e-4,
+      "betas": [
+        0.9,
+        0.999
+      ]
+    },
+    "checkpointer": {
+      "num_serialized_models_to_keep": 0,
+    },
+    "callbacks": [
+      {
+        "type": "reset_dataloader"
+      }
+    ],
+    "num_gradient_accumulation_steps": 1,
+    "validation_metric": "+pos_f1-score",
+    "num_epochs": 30,
+    "patience": 10,
+    "cuda_device": 0
+  }
+}

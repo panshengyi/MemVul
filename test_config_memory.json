@@ -1,0 +1,26 @@
+{
+  "validation_dataset_reader": {
+    "type": "reader_memory",
+    "target": "Security_Issue_Full",
+    "tokenizer": {
+      "type": "pretrained_transformer",
+      "model_name": "bert-base-uncased",
+      "add_special_tokens": true,
+      "max_length": 512
+    },
+    "token_indexers": {
+      "tokens": {
+        "type": "pretrained_transformer",
+        "model_name": "bert-base-uncased",
+        "namespace": "tags"
+      }
+    }
+  },
+  "model": {
+    "device": "cuda:0"
+  },
+  "validation_data_loader":{
+    "batch_size": 512,
+    "shuffle": false
+  }
+}

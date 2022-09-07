@@ -1,0 +1,9 @@
+{
+  "model": {
+    "device": "cuda:0"
+  },
+  "validation_data_loader":{
+    "batch_size": 512,
+    "shuffle": false
+  }
+}

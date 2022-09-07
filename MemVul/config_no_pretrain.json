@@ -1,0 +1,106 @@
+local bert_model = "bert-base-uncased";
+local anchor_path = "CWE_anchor_golden_project.json";
+local seed = 2021;
+
+{
+  "random_seed": seed,
+  "numpy_seed": seed,
+  "pytorch_seed": seed,
+  "dataset_reader": {
+    "type": "reader_memory",
+    "sample_neg": 0.01,
+    "train_iter": 1,
+    "same_diff_ratio": {"diff":16, "same":16},
+    "anchor_path": anchor_path,
+    "tokenizer": {
+      "type": "pretrained_transformer",
+      "model_name": bert_model,
+      "add_special_tokens": true,
+      "max_length": 256
+    },
+    "token_indexers": {
+      "tokens": {
+        "type": "pretrained_transformer",
+        "model_name": bert_model,
+        "namespace": "tags"
+      }
+    }
+  },
+  "train_data_path": "train_project.json",
+  "validation_data_path": "validation_project.json",
+  "model": {
+    "type": "model_memory",
+    "label_namespace": "labels",
+    "dropout": 0.1,
+    "device": "cuda:0",
+    "use_header": true,
+    "PTM": bert_model,
+    "temperature": 0.1,
+    "text_field_embedder": {
+      "token_embedders": {
+        "tokens": {
+          "type": "pretrained_transformer",
+          "model_name": bert_model,
+          "train_parameters": true,
+        }
+      }
+    }
+  },
+  "data_loader": {
+    "batch_size": 32,
+    "shuffle": false
+  },
+  "validation_data_loader":{
+    "batch_size": 512,
+    "shuffle": false
+  },
+  "trainer": {
+    "type": "custom_gradient_descent",
+    "optimizer": {
+      "type": "huggingface_adamw",
+      "parameter_groups": [[["_text_field_embedder"], {"lr": 2e-5, "requires_grad": true}], [["_bert_pooler"], {"lr": 5e-5, "requires_grad": true}]],
+      "lr": 1e-4,
+      "betas": [
+        0.9,
+        0.999
+      ]
+    },
+    "checkpointer": {
+      "num_serialized_models_to_keep": 0,
+    },
+    "learning_rate_scheduler": {
+     "type": "linear_with_warmup",
+     "warmup_steps": 10000
+    },
+    "custom_callbacks": [
+      {
+        "type": "reset_dataloader"
+      },
+      {
+        "type": "custom_validation",
+        "anchor_path": anchor_path,
+        "data_reader":{
+          "type": "reader_memory",
+          "tokenizer": {
+            "type": "pretrained_transformer",
+            "model_name": bert_model,
+            "add_special_tokens": true,
+            "max_length": 512  // different from the data reader
+          },
+          "token_indexers": {
+            "tokens": {
+              "type": "pretrained_transformer",
+              "model_name": bert_model,
+              "namespace": "tags"
+            }
+          }
+        }
+      }
+    ],
+    "num_gradient_accumulation_steps": 2,
+    "validation_metric": "+s_f1-score",
+    "num_epochs": 30,
+    "patience": 10,
+    "cuda_device": 0
+  }
+}

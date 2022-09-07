@@ -3,16 +3,13 @@
 ## Project Description
 This replication package contains the dataset and code for our FSE 2022 paper `Automated Unearthing of Dangerous Issue Reports`.
 
-We are the first to introduce the task of dangerous IR identification. We aim to help software vendors start the vulnerability remediation process earlier, as well as helping issue tracking systems (e.g., GitHub) better manage the disclosure process of dangerout IRs.
+We are the first to introduce the task of dangerous IR (i.e., IR that leaks the vulnerability information) identification. We aim to help software vendors start the vulnerability remediation process earlier, as well as helping issue tracking systems (e.g., GitHub) better manage the disclosure process of dangerout IRs.
 
 We collect a large-scale dataset consisting of 1,221,677 IRs from 1,390 OSS in GitHub, with 3,937 CVE-referred issue reports (CIR) in total. We consider the issue reports referred by CVE records as positives, and the remaining ones as negetives.  
 
 We conduct preliminary study to analyze the chatacteristics of CIRs.  
 
 We propose an automated approach named MemVul for dangerous IR identification. MemVul augments networks with a memory component, which stores the external vulnerability knowledge from Common Weakness Enumeration (CWE).
-
-**The source code is in the code.rar file.**
-
 
 ## Environments
 
@@ -37,9 +34,11 @@ We propose an automated approach named MemVul for dangerous IR identification. M
    
    We also adopt TextCNN as a neural baseline. You can find the code [here](./TextCNN/). For the training of TextCNN, we use glove embedding. Please download [Glove](http://nlp.stanford.edu/data/glove.6B.zip) first, then unzip this file and put `glove.6B.300d.txt` into the folder.
 
-   We use [bert-base-uncased](https://huggingface.co/bert-base-uncased) from HuggingFaces Transformer Libarary. You don't need to download the pretrained model by yourself as it will be downloaded the first time you run the code. Note that we perform Masked language Model (MLM) task to further pretrain the BERT using our issue report data. You can find the code for further pretraining [here](run_mlm_wwm.py). The code is modified from the [one](https://github.com/huggingface/transformers/tree/master/examples/research_projects/mlm_wwm) provided by the HuggingFaces. You can find more details there.
+   We use [bert-base-uncased](https://huggingface.co/bert-base-uncased) from HuggingFaces Transformer Libarary. You don't need to download the pretrained model by yourself as it will be downloaded the first time you run the code. Note that we perform Masked language Modeling (MLM) to further pretrain the BERT using our collected issue report data. You can find the code for further pretraining [here](run_mlm_wwm.py). The code is modified from [the one provided by the HuggingFaces](https://github.com/huggingface/transformers/tree/master/examples/research_projects/mlm_wwm). You can find more details there.
 
 ## Dataset
+
+**Note that all datasets are in [Google Drive](https://drive.google.com/drive/folders/1K_x6zu80aVwr4CF0Jx8_bBx53FgX7Rs2?usp=sharing)**
 
 * `all_samples.csv`: all the **original** issue report (IR) data collected from GHArchive, consisting of 1,221,677 IRs from 1,390 OSS in GitHub, with 3,937 CVE-referred issue reports (CIR) in total. We already combine the information from the correspoding CVE records with IRs. We label IRs referred by CVE records as positives (CIR), and the remaining ones as negatives (NCIR). Below, shows an example: 
 
@@ -85,9 +84,9 @@ There are several files and three directoris (`Baseline` - baselines from Wu *et
 
 * `predict_memory.py`: You should use it for evaluations of MemVul, MemVul-o (without online negative sampling) and MemVul-p (without further pretraining). These models have an external memory, and predict an issue report by matching it with each anchor stored in the external memory.
 * `test_config_memory.json`: config for test of MemVul, MemVul-o and MemVul-p.
-* `predict_single.py`: You should use it for evaluations of MemVul-m (without the external memory) and textCNN. These models directly maps an input issue report to its class.
+* `predict_single.py`: You should use it for evaluations of MemVul-m (without the external memory) and TextCNN. These models directly map an input issue report to its class.
 * `test_config_single`: config for test of MemVul-m
-* `test_config_cnn`: config for test of textCNN
+* `test_config_cnn`: config for test of TextCNN
 
 * `utils.py`: util fuctions: e.g., divide the dataset into training set and testing set, generate the golden anchors, build CWE tree
 
@@ -117,11 +116,13 @@ There are several files and three directoris (`Baseline` - baselines from Wu *et
    * `callbacks.py`: callbacks used in training, implement online negative sampling and custom validation
 
 * `TextCNN/`: code of our implementation of TextCNN
-   * `reader_cnn.py`: dataset reader for textCNN
-   * `model_cnn.py`: textCNN model
-   * `config_cnn.json`: config for the training of textCNN.
+   * `reader_cnn.py`: dataset reader for TextCNN
+   * `model_cnn.py`: TextCNN model
+   * `config_cnn.json`: config for the training of TextCNN.
 
 * `data/`: all the data (in json format) used in the experiments. You can build them using the correspoding fuctions in [utils.py](utils.py)
+
+**Note that all data are in [Google Drive](https://drive.google.com/drive/folders/1K_x6zu80aVwr4CF0Jx8_bBx53FgX7Rs2?usp=sharing)**
 
    * `CVE_dict.json`: all the CVE records
    * `CWE_anchor_golden_project.json`: Anchors that we built for the external memory
