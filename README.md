@@ -145,3 +145,23 @@ Open terminal in the parent folder and run
 For example, with `allennlp train MemVul/config_memory.json -s MemVul/out_memvul/ --include-package MemVul`, you can get the output folder at `MemVul/out_memvul/` and log information showed in the console.
 
 For test, please follow the comments in [predict_memory.py](predict_memory.py) and [predict_single.py](predict_single.py). First, you run the test function to get the detailed results of each sample (saved in file `<model>_result.json`). Then, you run the cal_metrics function to get all the metrics (saved in `<model>_metric_all.json`).
+
+## Reference
+If you find this repository useful, please consider citing our paper
+```
+@inproceedings{pan2022automated,
+   author = {Pan, Shengyi and Zhou, Jiayuan and Cogo, Filipe Roseiro and Xia, Xin and Bao, Lingfeng and Hu, Xing and Li, Shanping and Hassan, Ahmed E.},
+   title = {Automated Unearthing of Dangerous Issue Reports},
+   year = {2022},
+   isbn = {9781450394130},
+   publisher = {Association for Computing Machinery},
+   address = {New York, NY, USA},
+   url = {https://doi.org/10.1145/3540250.3549156},
+   doi = {10.1145/3540250.3549156},
+   booktitle = {Proceedings of the 30th ACM Joint European Software Engineering Conference and Symposium on the Foundations of Software Engineering},
+   pages = {834–846},
+   numpages = {13},
+   location = {Singapore, Singapore},
+   series = {ESEC/FSE 2022}
+}
+```
